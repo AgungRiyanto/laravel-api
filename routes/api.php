@@ -19,5 +19,7 @@ use Illuminate\Http\Request;
 
 Route::post('register', 'UserController@register');
 Route::post('login', 'UserController@login');
+
 Route::get('project', 'ProjectController@getProject');
+Route::post('project', 'ProjectController@create');
 
