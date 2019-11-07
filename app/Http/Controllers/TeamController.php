@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Project;
-use App\ProjectMember;
+use App\Team;
+use App\TeamMember;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use JWTAuth;
 
-class ProjectController extends Controller {
+class TeamController extends Controller {
 
     public function __construct() {
         $this->user = JWTAuth::parseToken()->authenticate();
@@ -16,7 +16,7 @@ class ProjectController extends Controller {
 
     public function create(Request $request) {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:projects,name',
+            'name' => 'required|string|max:255|unique:teams,name',
             'description' => 'sometimes|string'
         ]);
 
@@ -24,23 +24,23 @@ class ProjectController extends Controller {
             return response()->error('the given data was in valid', $validator->errors()->toJson());
         }
 
-        $projects = Project::create([
+        $teams = Team::create([
             'name' => $request->get('name'),
             'description' => $request->get('description'),
             'created_by' => $this->user->id
         ]);
 
-        ProjectMember::create([
+        TeamMember::create([
             'user_id' => $this->user->id,
-            'project_id' => $projects->id
+            'team_id' => $teams->id
         ]);
 
-        return response()->success('Successfully create project', $projects);
+        return response()->success('Successfully create team', $teams);
     }
 
-    public function getProject() {
-        $projects = Project::all();
+    public function getTeam() {
+        $teams = Team::all();
 
-        return response()->success('Project list retrieved', $projects);
+        return response()->success('Teams list retrieved', $teams);
     }
 }

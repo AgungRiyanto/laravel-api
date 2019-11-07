@@ -4,8 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Project extends Model
+class Team extends Model
 {
-    protected $table = "projects";
+    protected $table = "teams";
     protected $fillable = ['name', 'description', 'created_by'];
 }

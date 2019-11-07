@@ -20,6 +20,8 @@ use Illuminate\Http\Request;
 Route::post('register', 'UserController@register');
 Route::post('login', 'UserController@login');
 
-Route::get('project', 'ProjectController@getProject');
-Route::post('project', 'ProjectController@create');
+Route::get('project', 'ProjectController@getProject')->middleware('jwt.verify');
+Route::post('project', 'ProjectController@create')->middleware('jwt.verify');
 
+Route::get('team', 'TeamController@getTeam')->middleware('jwt.verify');
+Route::post('team', 'TeamController@create')->middleware('jwt.verify');
