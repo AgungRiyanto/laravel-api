@@ -7,7 +7,7 @@ use App\ProjectMember;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use JWTAuth;
-
+use DB;
 class ProjectController extends Controller {
 
     public function __construct() {
@@ -24,18 +24,27 @@ class ProjectController extends Controller {
             return response()->error('the given data was in valid', $validator->errors()->toJson());
         }
 
-        $projects = Project::create([
-            'name' => $request->get('name'),
-            'description' => $request->get('description'),
-            'created_by' => $this->user->id
-        ]);
+        DB::beginTransaction();
 
-        ProjectMember::create([
-            'user_id' => $this->user->id,
-            'project_id' => $projects->id
-        ]);
+        try {
+            $projects = Project::create([
+                'name' => $request->get('name'),
+                'description' => $request->get('description'),
+                'created_by' => $this->user->id
+            ]);
+    
+            ProjectMember::create([
+                'user_id' => $this->user->id,
+                'project_id' => $projects->id
+            ]);
 
-        return response()->success('Successfully create project', $projects);
+            DB::commit();
+    
+            return response()->success('Successfully create project', $projects);
+        } catch(\Exception $e) {
+            DB:rollback();
+            return response()->error($e->getMessage(), $e);
+        }
     }
 
     public function getProject() {

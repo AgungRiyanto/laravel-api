@@ -73,6 +73,6 @@ class UserController extends Controller
 
         }
 
-        return response()->json(compact('user'));
+        return response()->success('Profile data retrieved', $user);
     }
 }

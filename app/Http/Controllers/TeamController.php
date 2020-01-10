@@ -7,6 +7,7 @@ use App\TeamMember;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use JWTAuth;
+use DB;
 
 class TeamController extends Controller {
 
@@ -24,18 +25,27 @@ class TeamController extends Controller {
             return response()->error('the given data was in valid', $validator->errors()->toJson());
         }
 
-        $teams = Team::create([
-            'name' => $request->get('name'),
-            'description' => $request->get('description'),
-            'created_by' => $this->user->id
-        ]);
+        DB::beginTransaction();
 
-        TeamMember::create([
-            'user_id' => $this->user->id,
-            'team_id' => $teams->id
-        ]);
+        try {
+            $teams = Team::create([
+                'name' => $request->get('name'),
+                'description' => $request->get('description'),
+                'created_by' => $this->user->id
+            ]);
+    
+            TeamMember::create([
+                'user_id' => $this->user->id,
+                'team_id' => $teams->id
+            ]);
 
-        return response()->success('Successfully create team', $teams);
+            DB::commit();
+    
+            return response()->success('Successfully create team', $teams);
+        } catch(\Exception $e) {
+            DB::rollback();
+            return response()->error($e->getMessage(), $e);
+        }
     }
 
     public function getTeam() {

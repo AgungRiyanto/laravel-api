@@ -17,11 +17,21 @@ use Illuminate\Http\Request;
 //     return $request->user();
 // });
 
-Route::post('register', 'UserController@register');
-Route::post('login', 'UserController@login');
+Route::group(['prefix' => 'auth'], function() {
+    Route::post('register', 'UserController@register');
+    Route::post('login', 'UserController@login');
+});
 
-Route::get('project', 'ProjectController@getProject')->middleware('jwt.verify');
-Route::post('project', 'ProjectController@create')->middleware('jwt.verify');
+Route::group(['prefix' => 'profile', 'middleware' => 'jwt.verify'], function() {
+    Route::get('/', 'UserController@getAuthenticatedUser');
+});
 
-Route::get('team', 'TeamController@getTeam')->middleware('jwt.verify');
-Route::post('team', 'TeamController@create')->middleware('jwt.verify');
+Route::group(['prefix' => 'project', 'middleware' => 'jwt.verify'], function(){
+    Route::get('/', 'ProjectController@getProject');
+    Route::post('/', 'ProjectController@create');
+});
+
+Route::group(['prefix' => 'team', 'middleware' => 'jwt.verify'], function(){
+    Route::get('/', 'TeamController@getTeam');
+    Route::post('/', 'TeamController@create');
+});
